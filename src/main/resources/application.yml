@@ -1,0 +1,72 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: vaultforge
+  datasource:
+    url: ${VAULTFORGE_DB_URL:jdbc:postgresql://localhost:5432/vaultforge}
+    username: ${VAULTFORGE_DB_USER:vaultforge}
+    password: ${VAULTFORGE_DB_PASSWORD:vaultforge}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+  rabbitmq:
+    host: ${VAULTFORGE_RABBIT_HOST:localhost}
+    port: ${VAULTFORGE_RABBIT_PORT:5672}
+    username: ${VAULTFORGE_RABBIT_USER:guest}
+    password: ${VAULTFORGE_RABBIT_PASSWORD:guest}
+  data:
+    redis:
+      host: ${VAULTFORGE_REDIS_HOST:localhost}
+      port: ${VAULTFORGE_REDIS_PORT:6379}
+  cache:
+    type: redis
+
+vaultforge:
+  security:
+    jwt:
+      issuer: ${VAULTFORGE_JWT_ISSUER:vaultforge}
+      secret: ${VAULTFORGE_JWT_SECRET:change-me-in-prod-please-rotate-32bytes}
+      access-token-ttl-seconds: 900
+      refresh-token-ttl-seconds: 604800
+  storage:
+    chunk-size-bytes: ${VAULTFORGE_CHUNK_SIZE_BYTES:8388608}
+  minio:
+    endpoint: ${VAULTFORGE_MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${VAULTFORGE_MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${VAULTFORGE_MINIO_SECRET_KEY:minioadmin}
+    bucket: ${VAULTFORGE_MINIO_BUCKET:vaultforge}
+  rate-limit:
+    requests-per-minute: ${VAULTFORGE_RATE_LIMIT_RPM:120}
+  rabbit:
+    retry-max-attempts: ${VAULTFORGE_RABBIT_RETRY_MAX:5}
+  concurrency:
+    max-retries: ${VAULTFORGE_CONCURRENCY_MAX_RETRIES:3}
+    backoff-millis: ${VAULTFORGE_CONCURRENCY_BACKOFF_MS:25}
+  cache:
+    metadata-ttl-seconds: ${VAULTFORGE_CACHE_METADATA_TTL:300}
+    snapshot-ttl-seconds: ${VAULTFORGE_CACHE_SNAPSHOT_TTL:600}
+    chunk-exists-ttl-seconds: ${VAULTFORGE_CACHE_CHUNK_TTL:300}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  tracing:
+    sampling:
+      probability: 0.1
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: INFO
+    com.vaultforge: INFO
